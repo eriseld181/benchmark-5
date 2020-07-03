@@ -1,86 +1,65 @@
 const express = require("express")
+
 const fs = require("fs")
 const path = require("path")
 const router = express.Router()
 const uniqid = require("uniqid")
-const { check, validationResult } = require("express-validator")
 
-
-
-const readFile = (fileName) => {
-    const buffer = fs.readFileSync(path.join(__dirname, fileName))
-    return JSON.parse(buffer.toString())
-}
-//krijon rrugen per tek students.json
+const moviePath = path.join(__dirname, "movies.json")//krijon rrugen per tek students.json
 
 //merr tere studentet
 router.get("/", (req, res) => {
     //console.log("get")
-    const movieDB = readFile("movies.json")
-    if (req.querry && req.querry.title) {
-        const filteredMovies = movieDB.filter(
-            (movie) => movie.hasOwnProperty(title) && movie.title === req.query.title
-        )
-        res.send(filteredMovies)
-    } else { res.send(movieDB) }
-
+    const fileContentAsBuffer = fs.readFileSync(moviePath)//lexon te dhenen e students.json
+    const fileContent = JSON.parse(fileContentAsBuffer.toString())
     res.send(fileContent)
 })
 
-//merr vetem filmat me ane te ID
+//merr vetem studentet me ane te ID
 router.get("/:id", (req, res) => {
-    const movieDB = readFile("movies.json")
-    const singleMovie = movieDB.filter(movie => movie.id === req.params.id)
+    const fileContentAsBuffer = fs.readFileSync(moviePath)
+    const movieArray = JSON.parse(fileContentAsBuffer.toString())
+
+    const singleMovie = movieArray.filter(movie => movie.id === req.params.id)
+    //filtron movieArray dhe shfaq vetem ato te dhena  qe jane te njejta me req.params.id
+
     res.send(singleMovie)
 })
-//posto filmat
+router.post("/", (req, res) => {
+    const newMovie = { ...req.body, id: uniqid() }
+    const fileContentAsBuffer = fs.readFileSync(moviePath)//lexon te dhenen e students.json
+    const movieArray = JSON.parse(fileContentAsBuffer.toString())
 
-
-router.post("/",
-    [
-        check("Title")
-            .isLength({ min: 5 })
-            .exists()
-            .withMessage("insert a title with min 5 characters")
-    ]
-    , (req, res, next) => {
-        try {
-            const errors = validationResult(req)
-            if (!errors.isEmpty()) {
-                let err = new Error()
-                err.message = errors
-                err.httpStatusCode = 400
-                next(err)
-            }
-            const movieDB = readFile("movies.json")
-            const newMovie = { ...req.body }//createdAt: new Date(), uniqid()
-
-            movieDB.push(newMovie)
-
-            fs.writeFileSync(path.join(__dirname, "movies.json"), JSON.stringify(movieDB))
-            res.status(201).send(newMovie)
-        } catch (error) {
-
-        }
-
-    })
+    movieArray.push(newMovie)
+    fs.writeFileSync(moviePath, JSON.stringify(movieArray))
+    res.status(201).send(req.body)
+})
 
 router.delete("/:id", (req, res) => {
-    const movieDB = readFile("movies.json")
-    const newListOfMovies = movieDB.filter(movie => movie.id !== req.params.id)
+    const fileContentAsBuffer = fs.readFileSync(moviePath)//lexon te dhenen e students.json
+    const movieArray = JSON.parse(fileContentAsBuffer.toString())
 
-    fs.writeFileSync(path.join(__dirname, "movies.json"), JSON.stringify(newListOfMovies))
+    const newListOfMovies = movieArray.filter((movie) => movie.id !== req.params.id)
+
+    fs.writeFileSync(moviePath, JSON.stringify(newListOfMovies))
     res.send(newListOfMovies)
 })
 
 
 router.put("/:id", (req, res) => {
-    const movieDB = readFile("movies.json")
-    const newListOfMovies = movieDB.filter(movie => movie.id !== req.params.id)
-    const modifiedMovie = { ...req.body, id: req.params.id }
-    newListOfMovies.push(modifiedMovie)
-    fs.writeFileSync(path.join(__dirname, "movies.json"), JSON.stringify(newListOfMovies))
-    res.send(newListOfMovies)
+    const fileContentAsBuffer = fs.readFileSync(moviePath)//lexon te dhenen e students.json
+    const movieArray = JSON.parse(fileContentAsBuffer.toString())
+
+    const newListOfMovies = movieArray.filter((movie) => movie.id !== req.params.id)
+
+    const movie = req.body
+    movie.id = req.params.id
+
+    newListOfMovies.push(movie)
+    fs.writeFileSync(moviePath, JSON.stringify(newListOfMovies))
+    res.send("ok")
+
+
 })
 
 module.exports = router

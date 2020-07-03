@@ -8,15 +8,15 @@ const uniqid = require("uniqid")
 
 const reviewPath = path.join(__dirname, "reviews.json")//krijon rrugen per tek students.json
 
-//merr tere reviews
+
 router.get("/", (req, res) => {
-    //console.log("get")
+
     const fileContentAsBuffer = fs.readFileSync(reviewPath)//lexon te dhenen e students.json
     const fileContent = JSON.parse(fileContentAsBuffer.toString())
     res.send(fileContent)
 })
 
-//merr vetem studentet me ane te ID
+
 router.get("/:id", (req, res) => {
     const fileContentAsBuffer = fs.readFileSync(reviewPath)
     const reviewArray = JSON.parse(fileContentAsBuffer.toString())
@@ -26,13 +26,15 @@ router.get("/:id", (req, res) => {
 
     res.send(singleReview)
 })
-router.post("/", (req, res) => {
-    const newReview = { ...req.body, id: uniqid() }
-    const fileContentAsBuffer = fs.readFileSync(reviewPath)//lexon te dhenen e students.json
-    const reviewArray = JSON.parse(fileContentAsBuffer.toString())
 
-    reviewArray.push(newReview)
-    fs.writeFileSync(reviewPath, JSON.stringify(reviewArray))
+
+router.post("/", (req, res) => {
+    const newMovie = { ...req.body, id: uniqid() }
+    const fileContentAsBuffer = fs.readFileSync(moviePath)//lexon te dhenen e students.json
+    const movieArray = JSON.parse(fileContentAsBuffer.toString())
+
+    movieArray.push(newMovie)
+    fs.writeFileSync(moviePath, JSON.stringify(movieArray))
     res.status(201).send(req.body)
 })
 
