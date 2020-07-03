@@ -4,7 +4,7 @@ const path = require("path")
 const router = express.Router()
 const uniqid = require("uniqid")
 const { check, validationResult } = require("express-validator")
-const movieId = require("..movies/movies.json")
+
 
 
 const readFile = (fileName) => {
@@ -17,7 +17,7 @@ const readFile = (fileName) => {
 router.get("/", (req, res) => {
 
     const movieDB = readFile("reviews.json")
-    if (req.querry && req.querry.title) {
+    if (req.query && req.query.title) {
         const filteredMovies = movieDB.filter(
             (movie) => movie.hasOwnProperty(title) && movie.title === req.query.title
         )
@@ -53,7 +53,7 @@ router.post("/",
                 next(err)
             }
             const movieDB = readFile("reviews.json")
-            const newMovie = { ...req.body, createdAt: new Date(), id: uniqid(), elementId: }
+            const newMovie = { ...req.body, createdAt: new Date(), id: uniqid() }
 
             movieDB.push(newMovie)
 
